@@ -163,6 +163,32 @@ class MyAlphaBetaAgent():
     def __init__(self, depth):
         self.depth = depth
 
+    def alphabeta(self,state,depth,alpha,beta):
+        if state.isTerminated() :
+            return None, state.evaluateScore()
+        best_state, best_score = None, - \
+            float('inf') if state.isMe() else float('inf')
+        for child in state.getChildren():
+            if state.isMe():
+                _,tmp_score = self.alphabeta(child, depth-1,alpha,beta)
+                if tmp_score > best_score:
+                    best_score = tmp_score
+                    best_state = child
+                alpha=max(alpha,best_score)
+                if best_score>beta:
+                    return best_state,best_score
+            else:
+                if child.isMe() and depth==0 :
+                    tmp_score=child.evaluateScore()
+                else:
+                    _,tmp_score =self.alphabeta(child,depth,alpha,beta)
+                if tmp_score<best_score:
+                    best_score=tmp_score
+                    best_state=child
+                beta=min(beta,best_score)
+                if best_score<alpha:
+                    return best_state,best_score
+        return best_state,best_score
     def getNextState(self, state):
-        # YOUR CODE HERE
-        util.raiseNotDefined()
+        best_state,_=self.alphabeta(state,self.depth,float("-inf"),float("inf"))
+        return best_state
