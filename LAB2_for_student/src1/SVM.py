@@ -50,7 +50,60 @@ class SupportVectorMachine:
         '''
         需要你实现的部分
         '''
-
+        # 首先构造系数矩阵P，Pij = <yixi,yjxj>
+        train_num = train_data.shape[0]
+        P = np.zeros((train_num,train_num))
+        temp = train_data
+        for i in range(train_num):
+            for j in range(train_num):
+                P[i][j] = self.KERNEL(temp[i],temp[j],self.kernel)*train_label[i]*train_label[j]
+        
+      
+        # 构造q
+        q = np.ones((train_num,1))
+        q = -1*q
+        # 构造G
+        G1 = np.eye(train_num,dtype = int)
+        G2 = np.eye(train_num,dtype = int)
+        G2 = -1*G2
+        G = np.r_[G1,G2]
+        # 构造h
+        h1 = np.zeros((train_num,1))
+        for i in range(train_num):
+            h1[i] = self.C
+        h2 = np.zeros((train_num,1))
+        h = np.r_[h1,h2]
+        # 构造A
+        A = train_label.reshape(1,train_num)
+        # 构造b
+        b = np.zeros((1,1))
+        P = P.astype(np.double)
+        q = q.astype(np.double)
+        G = G.astype(np.double)
+        h = h.astype(np.double)
+        A = A.astype(np.double)
+        b = b.astype(np.double)
+        P_1 = cvxopt.matrix(P)
+        q_1 = cvxopt.matrix(q)
+        G_1 = cvxopt.matrix(G)
+        h_1 = cvxopt.matrix(h)
+        A_1 = cvxopt.matrix(A)
+        b_1 = cvxopt.matrix(b)
+        sol = cvxopt.solvers.qp(P_1,q_1,G_1,h_1,A_1,b_1)
+        sol_x = sol['x']
+        alpha = np.array(sol_x)
+       
+        indices = np.where(alpha > self.Epsilon)[0]
+        bias = np.mean(
+            [train_label[i] - sum([train_label[i] * alpha[i] * self.KERNEL(x, train_data[i],self.kernel) for x in train_data[indices]]) for i in indices])
+        test_num = test_data.shape[0]
+        predictions = []
+        for j in range(test_num):
+            prediction = bias +  sum([train_label[i] * alpha[i] * self.KERNEL(test_data[j], train_data[i],self.kernel) for i in indices])
+            predictions.append(prediction)
+        prediction = np.array(predictions).reshape(test_num,1)
+        # print(prediction)
+        return prediction
 
 
 
