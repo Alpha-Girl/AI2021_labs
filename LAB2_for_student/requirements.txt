@@ -1,0 +1,5 @@
+numpy==1.19.5
+math
+collections
+cvxopt==1.2.6
+torch==1.8.1+cpu

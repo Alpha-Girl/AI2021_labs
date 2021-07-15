@@ -108,7 +108,9 @@ def test(model, test_loader, criterion):
             t = pre_out.argmax(dim=1)
             num_correct += sum(t == target)
             total += batch_size_test
+    # 准确率
     accuracy = num_correct/total
+    # 平均损失
     test_loss /= len(test_loader.dataset)
     print("Test set: Average loss: {:.4f}\t Acc {:.2f}".format(
         test_loss, accuracy))
